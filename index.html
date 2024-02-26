@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Lotto!</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body {
+                padding-left: 10px;
+                padding-right: 10px;
+                padding-top: 100px;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+            .container {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                margin-top: 10px;
+                min-height: 2em;
+                gap: 10px;
+            }
+            .container#L5-container {
+                flex-direction: column;
+                align-items: start;
+            }
+            button {
+                cursor: pointer;
+                padding: 5px 10px;
+                background-color: rgb(40, 41, 43);
+                border: 0;
+                border-radius: 5px;
+                color: #eee;
+            }
+            .show {
+                min-height: 1em;
+                padding: 5px 10px;
+            }
+            #L5 {
+                min-height: 5em;
+            }
+
+            .container#L1seed-container {
+                display: block;
+            }
+            #seedInput {
+                display: block;
+                margin-bottom: 10px;
+                padding: 5px 10px;
+                border: 0;
+                border-bottom: 1px solid rgb(40, 41, 43);
+            }
+            #L1seed {
+                margin-top: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Good Luck!</h1>
+        <p>Random Lotto Numbers.</p>
+        <div class="container">
+            <button onclick="showLottoNumbers()">LOTTO!</button>
+            <div class="show" id="L1"></div>
+        </div>
+        <div class="container" id="L5-container">
+            <button onclick="show5LottoNumbers()">FIVE LOTTO!</button>
+            <div class="show" id="L5"></div>
+        </div>
+
+        <div class="container" id="L1seed-container">
+            <input id="seedInput" placeholder="Enter seed..." />
+            <button onclick="showLottoNumberswithSeed()">LOTTO!</button>
+            <div class="show" id="L1seed"></div>
+        </div>
+
+        <script
+            type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"
+        ></script>
+        <script>
+            const probs = [
+                0.14474747474747476, 0.15565656565656566, 0.15292929292929294, 0.1483838383838384, 0.16383838383838384,
+                0.15292929292929294, 0.15383838383838383, 0.16474747474747475, 0.18383838383838386, 0.15383838383838383,
+                0.15474747474747474, 0.1411111111111111, 0.14747474747474748, 0.1483838383838384, 0.15656565656565657,
+                0.15474747474747474, 0.14202020202020202, 0.14474747474747476, 0.1592929292929293, 0.1492929292929293,
+                0.15565656565656566, 0.1783838383838384, 0.17202020202020202, 0.1511111111111111, 0.17020202020202022,
+                0.1502020202020202, 0.14202020202020202, 0.17020202020202022, 0.17292929292929293, 0.1602020202020202,
+                0.15292929292929294, 0.16747474747474747, 0.14474747474747476, 0.1392929292929293, 0.15383838383838383,
+                0.15656565656565657, 0.15292929292929294, 0.15202020202020203, 0.15202020202020203, 0.1511111111111111,
+                0.17383838383838385, 0.16202020202020204, 0.13747474747474747, 0.15656565656565657, 0.1511111111111111,
+            ];
+            function getRandomIndices(probs, count) {
+                const indices = [];
+                const len = probs.length;
+                const shuffledIndices = [...Array(len).keys()];
+
+                for (let i = len - 1; i >= len - count; i--) {
+                    const randomIndex = Math.floor(Math.random() * (i + 1));
+                    [shuffledIndices[randomIndex], shuffledIndices[i]] = [
+                        shuffledIndices[i],
+                        shuffledIndices[randomIndex],
+                    ];
+                    indices.push(shuffledIndices[i]);
+                }
+
+                return indices;
+            }
+            function showLottoNumbers() {
+                const numToPick = 7;
+                const selectedIndices = getRandomIndices(probs, numToPick);
+                const selectedNumbers = selectedIndices.map((index) => index + 1).sort((a, b) => a - b); // Sort the selected numbers
+
+                const showDiv = document.getElementById('L1');
+                showDiv.innerHTML = `${selectedNumbers.join(', ')}`;
+            }
+            function show5LottoNumbers() {
+                const numSets = 5; // 수정: 다섯 세트의 로또 번호를 생성
+                const numToPick = 7;
+                const allSelectedNumbers = [];
+
+                for (let j = 0; j < numSets; j++) {
+                    const selectedIndices = getRandomIndices(probs, numToPick);
+                    const selectedNumbers = selectedIndices.map((index) => index + 1).sort((a, b) => a - b); // Sort the selected numbers
+                    allSelectedNumbers.push(selectedNumbers);
+                }
+
+                const showDiv = document.getElementById('L5');
+                showDiv.innerHTML = ''; // 이전 결과 지우기
+
+                allSelectedNumbers.forEach((numbers, index) => {
+                    const setNumber = index + 1;
+                    const setNumbers = numbers.join(', ');
+                    showDiv.innerHTML += `[${setNumber}]&nbsp&nbsp&nbsp${setNumbers}<br>`; // 각 세트의 번호를 줄바꿈으로 구분하여 표시
+                });
+            }
+            function getRandomIndicesSeed(probs, count, seed) {
+                Math.seedrandom(seed); // seed 설정
+
+                const indices = [];
+                const len = probs.length;
+                const shuffledIndices = [...Array(len).keys()];
+
+                for (let i = len - 1; i >= len - count; i--) {
+                    const randomIndex = Math.floor(Math.random() * (i + 1));
+                    [shuffledIndices[randomIndex], shuffledIndices[i]] = [
+                        shuffledIndices[i],
+                        shuffledIndices[randomIndex],
+                    ];
+                    indices.push(shuffledIndices[i]);
+                }
+
+                return indices;
+            }
+
+            function showLottoNumberswithSeed() {
+                const seed = document.getElementById('seedInput').value; // 입력된 시드 값 가져오기
+                if (seed.length == 0) {
+                    alert('Please enter seed first.');
+                    return;
+                } else if (seed < 0) {
+                    alert('Seed must be positive.');
+                    return;
+                }
+                const numToPick = 7;
+                const selectedIndices = getRandomIndicesSeed(probs, numToPick, seed);
+                const selectedNumbers = selectedIndices.map((index) => index + 1).sort((a, b) => a - b); // Sort the selected numbers
+
+                const showDiv = document.getElementById('L1seed');
+                showDiv.innerHTML = `Selected numbers: ${selectedNumbers.join(', ')}`;
+            }
+        </script>
+    </body>
+</html>
